@@ -18,6 +18,7 @@ export class AVM1Handler implements IAVMHandler {
 	public avmVersion: string = AVMVERSION.AVM1;
 	private _avmStage: AVMStage;
 	private _factory: AVM1SceneGraphFactory;
+	private _swfUrl: string;
 
 	private enterEvent: any = new EventBase('enterFrame');
 	private exitEvent: any = new EventBase('exitFrame');
@@ -38,6 +39,7 @@ export class AVM1Handler implements IAVMHandler {
 			return;
 		}
 		this._avmStage = avmStage;
+		this._swfUrl = swfFile.url;
 
 		// 	we only do this in AVM1:
 		//	stage is registered on MouseManager so we can dispatch events on it without event-bubbling
@@ -245,6 +247,29 @@ export class AVM1Handler implements IAVMHandler {
 		// if so we must dispatch/broadcast a event here
 	}
 
+	/**
+	 * Sets the SWF URL's query string parameters and the embedding page's FlashVars
+	 * (the stage config's `flashvars`) as variables on _level0, as Flash Player does
+	 */
+	private setRootVariables(root: AVM1MovieClip) {
+		const url = this._swfUrl || '';
+		const query = url.indexOf('?') > -1 ? url.substring(url.indexOf('?') + 1).split('#')[0] : '';
+		const variables: Record<string, string> = {};
+
+		new URLSearchParams(query).forEach((value, key) => {
+			variables[key] = value;
+		});
+
+		const flashvars = this._avmStage.config?.flashvars;
+		for (const key in flashvars) {
+			variables[key] = String(flashvars[key]);
+		}
+
+		for (const key in variables) {
+			this._factory.avm1Context.utils.setProperty(root, key, variables[key]);
+		}
+	}
+
 	public addAsset(asset: IAsset, addScene: boolean) {
 
 		if (asset.isAsset(MovieClip)) {
@@ -254,6 +279,8 @@ export class AVM1Handler implements IAVMHandler {
 					<AVM1ContextImpl> this._factory.avm1Context
 				);
 				//scene.adaptee.reset();
+				// before _addRoot, which runs the root's init actions
+				this.setRootVariables(scene);
 				this._factory.avm1Context.globals._addRoot(0, <MovieClip>scene.adaptee);
 
 				/*if(this._skipFrames>0){
