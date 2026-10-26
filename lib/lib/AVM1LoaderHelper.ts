@@ -1,5 +1,5 @@
 import { SWFParser, PromiseWrapper } from '@awayfl/swf-loader';
-import { AVM1Globals } from './AVM1Globals';
+import { AVM1SceneGraphFactory } from '../AVM1SceneGraphFactory';
 import { Loader, URLLoaderEvent, LoaderEvent, AssetEvent, IAsset, AssetLibrary, URLRequest } from '@awayjs/core';
 import { AVM1Context } from '../context';
 import { DisplayObject, MovieClip } from '@awayjs/scene';
@@ -114,7 +114,9 @@ export class AVM1LoaderHelper {
 		AssetLibrary.addEventListener(AssetEvent.ASSET_COMPLETE, this._onAssetCompleteDelegate);
 		AssetLibrary.addEventListener(LoaderEvent.LOADER_COMPLETE, this._onLoaderCompleteDelegate);
 		AssetLibrary.addEventListener(URLLoaderEvent.LOAD_ERROR, this._onLoadErrorDelegate);
-		AssetLibrary.load(new URLRequest(url), null, url, new SWFParser(AVM1Globals._scenegraphFactory));
+		// symbol IDs are only unique within a SWF, so a loaded SWF needs its own symbol table,
+		// or its timelines pick up the main SWF's symbols with the same IDs
+		AssetLibrary.load(new URLRequest(url), null, url, new SWFParser(new AVM1SceneGraphFactory(this._context)));
 		return this.result.promise;
 
 		/*
