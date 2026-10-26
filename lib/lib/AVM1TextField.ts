@@ -456,7 +456,11 @@ export class AVM1TextField extends AVM1SymbolBase<TextField> {
 		}
 
 		//away3TextFormat.font_table=this.adaptee.textFormat.font_table;
-		this.adaptee.newTextFormat = away3TextFormat;
+		// as in Flash, only the properties that are set change, so a format
+		// without a font keeps the field's current one
+		const newTextFormat = this.adaptee.newTextFormat;
+		away3TextFormat.applyToFormat(newTextFormat);
+		this.adaptee.newTextFormat = newTextFormat;
 	}
 
 	/**
