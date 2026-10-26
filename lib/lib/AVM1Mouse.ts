@@ -47,6 +47,7 @@ export class AVM1Mouse extends AVM1Object {
 	public static mouseMoveDelegate: any = null;
 	public static mouseOutDelegate: any = null;
 	public static mouseUpDelegate: any = null;
+	public static mouseWheelDelegate: any = null;
 
 	public static bindStage (
 		_context: AVM1Context,
@@ -69,6 +70,8 @@ export class AVM1Mouse extends AVM1Object {
 			stage.removeEventListener(AwayMouseEvent.MOUSE_OUT, AVM1Mouse.mouseOutDelegate);
 		if (AVM1Mouse.mouseUpDelegate)
 			stage.removeEventListener(AwayMouseEvent.MOUSE_UP, AVM1Mouse.mouseUpDelegate);
+		if (AVM1Mouse.mouseWheelDelegate)
+			stage.removeEventListener(AwayMouseEvent.MOUSE_WHEEL, AVM1Mouse.mouseWheelDelegate);
 
 		AVM1Mouse.mouseDownDelegate = (e: AwayMouseEvent) => {
 			// ?? = (a === undef || null) ? b : a;
@@ -112,10 +115,16 @@ export class AVM1Mouse extends AVM1Object {
 			alCallProperty(cls, 'broadcastMessage', ['onMouseUp']);
 		};
 
+		AVM1Mouse.mouseWheelDelegate = (e: AwayMouseEvent)=>{
+			// delta is the number of lines to scroll, positive when scrolling up
+			alCallProperty(cls, 'broadcastMessage', ['onMouseWheel', e.delta]);
+		};
+
 		stage.addEventListener(AwayMouseEvent.MOUSE_DOWN, AVM1Mouse.mouseDownDelegate);
 		stage.addEventListener(AwayMouseEvent.MOUSE_MOVE, AVM1Mouse.mouseMoveDelegate);
 		stage.addEventListener(AwayMouseEvent.MOUSE_OUT, AVM1Mouse.mouseOutDelegate);
 		stage.addEventListener(AwayMouseEvent.MOUSE_UP, AVM1Mouse.mouseUpDelegate);
+		stage.addEventListener(AwayMouseEvent.MOUSE_WHEEL, AVM1Mouse.mouseWheelDelegate);
 	}
 
 	public static hide() {
