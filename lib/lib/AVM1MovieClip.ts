@@ -167,6 +167,10 @@ export class AVM1MovieClip extends AVM1SymbolBase<MovieClip> implements IMovieCl
 		return child;
 	}
 
+	public updateGraphics(): void {
+		// nothing to sync, as the drawing API uses the adaptee's graphics directly
+	}
+
 	public addTimelineChildAtDepth(child: DisplayObject, depth: number) {
 		depth -= 16383;
 		if (child.adapter != child && (<any>child.adapter).deleteOwnProperties) {
