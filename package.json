@@ -26,7 +26,7 @@
     "prebuild": "npm run clean:dist",
     "build": "npm run tsc:build && npm run rollup",
     "prepare": "npm run tsc:build",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "node bumpIfPublished.mjs && npm run build",
     "copyVersionToIndex": "node ./copyVersionToIndex && git add ./index.ts && git commit -m \"update version number in index.ts\"",
     "version": "npm run copyVersionToIndex && npm run build"
   },

@@ -14,3 +14,4 @@ docs/
 .project
 .DS_Store
 *.iml
+bumpIfPublished.mjs
